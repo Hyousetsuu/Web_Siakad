@@ -1,0 +1,419 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text */
+}
+
+/* Header */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto; /* Align to right */
+}
+
+#sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 89%; /* Space from toggle to header */
+}
+
+.user-wrapper {
+    display: flex;
+    float: right;
+}
+
+header img {
+    border-radius: 49%;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.user-wrapper h4 {
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #00abe4; /* Bright blue sidebar */
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed;
+    transition: transform 0.3s ease; /* Smooth transition */
+    z-index: 1000; /* Ensure sidebar is above other content */
+}
+
+.hidden {
+    transform: translateX(-100%);
+}
+
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar .logo h2 {
+    color: #ffffff; /* White logo text */
+    margin: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 20px;
+}
+
+.sidebar ul li a {
+    color: #000000; /* Black menu text */
+    text-decoration: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background: #e9f1fa; /* Active and hover menu background */
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    box-sizing: border-box;
+    background: #e9f1fa; /* Main content background */
+    color: #000000; /* Black text */
+    flex-grow: 1;
+    overflow: auto;
+    transition: margin-left 0.3s ease; /* Smooth transition */
+}
+
+.shifted {
+    margin-left: 0;
+}
+
+/* Add Button */
+.add {
+    padding: 1rem 2rem;
+    font-weight: 700;
+    background: #ffffff; /* White */
+    margin-bottom: 20px;
+    color: #00ABE4; /* Bright blue */
+    border-radius: .5rem;
+    border-style: none;
+    transition-duration: 1s;
+}
+
+.add:hover {
+    border-color: #E9F1FA; /* Light blue */
+    box-shadow: rgba(0, 171, 228, 0.4) 5px 5px, rgba(0, 171, 228, 0.3) 10px 10px, rgba(0, 171, 228, 0.2) 15px 15px;
+}
+
+/* Content Container */
+.content-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    color: #000000; /* Black text */
+    margin-top: 30px;
+
+}
+
+/* Form Styling */
+.add-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.add-form input[type="text"],
+.add-form input[type="time"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.add-form button {
+    background-color: #00abe4;
+    color: #ffffff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.add-form button:hover {
+    background-color: #0077b6;
+}
+
+/* Table */
+
+/* CSS for table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff; /* White background */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+table th,
+table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #e9f1fa; /* Light blue header */
+    color: #000000;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+/* Footer */
+.footer {
+    background-color: #00abe4; /* Footer background */
+    color: #ffffff; /* Footer text */
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.footer a {
+    color: #ffffff;
+    text-decoration: none;
+    margin: 0 5px;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #f2f2f2; /* Hover color */
+}
+
+/* Empty State */
+.empty-state {
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 20px;
+    color: #777;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .modal-content {
+        width: 80%;
+    }
+}
+
+/* Edit and Delete Forms */
+.edit-form,
+.delete-form {
+    display: inline-block; /* Display forms in one line */
+}
+
+.delete-form {
+    margin-left: 5px; /* Left margin between Edit and Delete buttons */
+}
+
+/* Edit and Delete Buttons */
+.edit-btn,
+.delete-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #ffffff; /* Edit button background */
+    color: #00ABE4; /* Edit button text */
+    border: 1px solid #00ABE4;
+}
+
+.edit-btn:hover {
+    background-color: #E9F1FA;
+    color: #0077b6;
+    border-color: #0077b6;
+}
+
+.delete-btn {
+    background-color: #ffffff; /* Delete button background */
+    color: #00ABE4; /* Delete button text */
+    border: 1px solid #00ABE4;
+}
+
+.delete-btn:hover {
+    background-color: #E9F1FA;
+    color: #0077b6;
+    border-color: #0077b6;
+}
+
+/* Back to Top Button */
+.tombol {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background-color: #00abe4;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253);
+    cursor: pointer;
+    transition-duration: 0.3s;
+    overflow: hidden;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.tombol:hover {
+    width: 140px;
+    border-radius: 50px;
+    background-color: #00abe4;
+}
+
+.tombol::before {
+    position: absolute;
+    bottom: -20px;
+    content: "Back to Top";
+    color: white;
+    font-size: 0px;
+}
+
+.tombol:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    transition-duration: 0.3s;
+}
+
+/* Back to Top Button */
+.tombol {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%; /* Create circular button */
+    background-color: #00abe4;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253);
+    cursor: pointer;
+    transition-duration: 0.3s;
+    overflow: hidden;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.svgIcon {
+    width: 12px;
+    transition-duration: 0.3s;
+}
+
+.svgIcon path {
+    fill: white;
+}
+
+.tombol:hover {
+    width: 140px;
+    border-radius: 50px;
+    transition-duration: 0.3s;
+    background-color: #00abe4;
+    align-items: center;
+}
+
+.tombol:hover .svgIcon {
+    transition-duration: 0.3s;
+    transform: translateY(-200%);
+}
+
+.tombol::before {
+    position: absolute;
+    bottom: -20px;
+    content: "Back to Top";
+    color: white;
+    font-size: 0px;
+}
+
+.tombol:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    bottom: unset;
+    transition-duration: 0.3s;
+}
