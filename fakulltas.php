@@ -11,38 +11,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-include('koneksi.php');
-
 $user_id = $_SESSION['user_id'];
-
-
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Check if user is logged in
-if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
-    exit();
-}
+$role = $_SESSION['role'];
 
 // Initialize variables
 $fakultas_id = null;
 $nama_fakultas = '';
-$role = $_SESSION['role'];
+
 // Proses edit data fakultas jika tombol 'edit' diklik
 if (isset($_POST['edit'])) {
     $fakultas_id = $_POST['fakultas_id'];
 
     // Query untuk mengambil data fakultas berdasarkan ID
-    $sql = "SELECT nama_fakultas FROM fakultas WHERE id = $fakultas_id";
-    $result = $conn->query($sql);
+    $sql = "SELECT nama_fakultas FROM fakultas WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $fakultas_id);
+    $stmt->execute();
+    $stmt->bind_result($nama_fakultas);
+    $stmt->fetch();
+    $stmt->close();
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nama_fakultas = $row['nama_fakultas'];
-    } else {
+    if (empty($nama_fakultas)) {
         echo "Data fakultas tidak ditemukan.";
         exit;
     }
@@ -55,7 +44,7 @@ $stmt->bind_result($nama, $profile_pic);
 $stmt->fetch();
 $stmt->close();
 
-// Close the database connection
+// Close the database connection after all operations
 $conn->close();
 ?>
 
@@ -66,7 +55,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fakultas - Siakad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="fakultas.css">
+    <link rel="stylesheet" href="fakultas.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div class="sidebar">
@@ -86,97 +75,98 @@ $conn->close();
 
     <div class="main-content">
         <header>
-        <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <div class="user-wrapper">
                 <img src="<?php echo $profile_pic ? $profile_pic : 'default-profile.png'; ?>" alt="User" width="30" height="30">
                 <div>
-                    <h4><?php echo $nama; ?></h4>
-                    <small><?php echo ucfirst($role); ?></small>
+                    <h4><?php echo htmlspecialchars($nama); ?></h4>
+                    <small><?php echo ucfirst(htmlspecialchars($role)); ?></small>
                 </div>
             </div>
         </header>
 
         <main>
-        <div class="content-container card">
-        <h2>Fakultas</h2>
-            <button class="add" onclick="openModal()">Tambah Data Fakultas</button>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Fakultas</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        include('koneksi.php');
+            <div class="content-container card">
+                <h2>Fakultas</h2>
+                <button class="add" onclick="openModal()">Tambah Data Fakultas</button>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Fakultas</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            include('koneksi.php');
 
-                        // Ambil data fakultas
-                        $sql = "SELECT id, nama_fakultas FROM fakultas";
-                        $result = $conn->query($sql);
+                            // Ambil data fakultas
+                            $sql = "SELECT id, nama_fakultas FROM fakultas";
+                            $result = $conn->query($sql);
 
-                        if ($result->num_rows > 0) {
-                            $no = 1;
-                            while ($row = $result->fetch_assoc()) {
-                                echo "<tr>
-                                    <td>{$no}</td>
-                                    <td>{$row['nama_fakultas']}</td>
-                                    <td>
-                                        <form action='' method='post' class='edit-form'>
-                                            <input type='hidden' name='fakultas_id' value='{$row['id']}'>
-                                            <button class='add' type='submit' name='edit'>Edit</button>
-                                        </form>
-                                        <form action='deleteFakultas.php' method='post' onsubmit='return confirm(\"Apakah Anda yakin ingin menghapus data ini?\")' class='delete-form'>
-                                            <input type='hidden' name='fakultas_id' value='{$row['id']}'>
-                                            <button class='add' type='submit' name='delete' class='delete-btn'>Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>";
-                                $no++;
+                            if ($result->num_rows > 0) {
+                                $no = 1;
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>
+                                        <td>{$no}</td>
+                                        <td>" . htmlspecialchars($row['nama_fakultas']) . "</td>
+                                        <td>
+                                            <form action='' method='post' class='edit-form'>
+                                                <input type='hidden' name='fakultas_id' value='{$row['id']}'>
+                                                <button class='add' type='submit' name='edit'>Edit</button>
+                                            </form>
+                                            <form action='deleteFakultas.php' method='post' onsubmit='return confirm(\"Apakah Anda yakin ingin menghapus data ini?\")' class='delete-form'>
+                                                <input type='hidden' name='fakultas_id' value='{$row['id']}'>
+                                                <button class='add' type='submit' name='delete' class='delete-btn'>Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>";
+                                    $no++;
+                                }
+                            } else {
+                                echo "<tr><td colspan='3'>Tidak ada data</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='3'>Tidak ada data</td></tr>";
-                        }
 
-                        $conn->close();
-                        ?>
-                    </tbody>
-                </table>
-                <div class="empty-state">
-                    Tidak ada data fakultas lain saat ini.
+                            $conn->close();
+                            ?>
+                        </tbody>
+                    </table>
+                    <div class="empty-state">
+                        Tidak ada data fakultas lain saat ini.
+                    </div>
                 </div>
-            </div>
 
-            <!-- Modal for Adding Fakultas -->
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <h2>Tambah Data Fakultas</h2>
-                    <form action="addFakultas.php" method="post">
-                        <label for="nama_fakultas">Nama Fakultas:</label>
-                        <input type="text" id="nama_fakultas" name="nama_fakultas" required>
-                        <input type="submit" value="Tambah Fakultas">
-                    </form>
+                <!-- Modal for Adding Fakultas -->
+                <div id="modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Tambah Data Fakultas</h2>
+                        <form action="addFakultas.php" method="post">
+                            <label for="nama_fakultas">Nama Fakultas:</label>
+                            <input type="text" id="nama_fakultas" name="nama_fakultas" required>
+                            <input type="submit" value="Tambah Fakultas">
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Modal for Editing Fakultas -->
-            <?php if ($fakultas_id): ?>
-            <div id="editModal" class="modal" style="display: block;">
-                <div class="modal-content">
-                    <span class="close" onclick="closeEditModal()">&times;</span>
-                    <h2>Edit Data Fakultas</h2>
-                    <form action="updateFakultas.php" method="post">
-                        <input type="hidden" name="fakultas_id" value="<?php echo $fakultas_id; ?>">
-                        <label for="nama_fakultas">Nama Fakultas:</label>
-                        <input type="text" id="nama_fakultas" name="nama_fakultas" value="<?php echo $nama_fakultas; ?>" required>
-                        <button type="submit" name="update">Update</button>
-                    </form>
+                <!-- Modal for Editing Fakultas -->
+                <?php if ($fakultas_id): ?>
+                <div id="editModal" class="modal" style="display: block;">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeEditModal()">&times;</span>
+                        <h2>Edit Data Fakultas</h2>
+                        <form action="updateFakultas.php" method="post">
+                            <input type="hidden" name="fakultas_id" value="<?php echo htmlspecialchars($fakultas_id); ?>">
+                            <label for="nama_fakultas">Nama Fakultas:</label>
+                            <input type="text" id="nama_fakultas" name="nama_fakultas" value="<?php echo htmlspecialchars($nama_fakultas); ?>" required>
+                            <button type="submit" name="update">Update</button>
+                        </form>
+                    </div>
                 </div>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
         </main>
     </div>
 

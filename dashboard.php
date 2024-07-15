@@ -5,6 +5,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Cek apakah user sudah login dan memiliki peran admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit();
@@ -13,20 +14,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include('koneksi.php');
 
 $user_id = $_SESSION['user_id'];
-
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Check if user is logged in
-if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
-    exit();
-}
 $role = $_SESSION['role'];
-// Sambungkan ke database
-include('koneksi.php');
 
 // Query untuk mengambil jumlah data dosen
 $stmt_dosen = $conn->prepare("SELECT COUNT(*) FROM dosen");
@@ -63,6 +51,7 @@ $stmt_fakultas->bind_result($total_fakultas);
 $stmt_fakultas->fetch();
 $stmt_fakultas->close();
 
+// Query untuk mengambil informasi user yang sedang login
 $stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
@@ -70,9 +59,6 @@ $stmt->bind_result($nama, $profile_pic);
 $stmt->fetch();
 $stmt->close();
 $conn->close();
-
-
-// Tutup koneksi ke database
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -100,7 +86,7 @@ $conn->close();
     </div>
     <div class="main-content">
         <header>
-        <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <div class="user-wrapper">
                 <img src="<?php echo $profile_pic ? $profile_pic : 'default-profile.png'; ?>" alt="User" width="30" height="30">
                 <div>
@@ -155,7 +141,6 @@ $conn->close();
             </ul>
         </div>
 
-
         <div class="upcoming-events">
             <h3>Acara Mendatang</h3>
             <ul>
@@ -183,14 +168,14 @@ $conn->close();
 </body>
 
 <footer class="footer">
-            <div class="footer-content">
-                <p>💀&copy;2024 SIAKAD. All rights reserved.💀</p>
-                <p>
-                    <a href="#">Privacy Policy</a> |
-                    <a href="#">Terms of Service</a> |
-                    <a href="#">Contact Us</a>
-                </p>
-            </div>
-        </footer>
+    <div class="footer-content">
+        <p>&copy;2024 SIAKAD. All rights reserved.</p>
+        <p>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="#">Contact Us</a>
+        </p>
+    </div>
+</footer>
 
 </html>

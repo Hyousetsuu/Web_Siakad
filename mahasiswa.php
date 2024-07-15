@@ -1,45 +1,36 @@
 <?php
 session_start();
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-     header('Location: login.php');
-     exit();
-    }
-
-    include('koneksi.php');
-
-    $user_id = $_SESSION['user_id'];
-    $role = $_SESSION['role'];
-
-    $stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $stmt->bind_result($nama, $profile_pic);
-    $stmt->fetch();
-    $stmt->close();
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+// Redirect if not logged in or not an admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit();
 }
 
-include("koneksi.php");
+include('koneksi.php');
 
+$user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'];
+
+$stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$stmt->bind_result($nama, $profile_pic);
+$stmt->fetch();
+$stmt->close();
+
+// Fetch mahasiswa data
 $sql = "SELECT mahasiswa.id, mahasiswa.nim, fakultas.nama_fakultas, program_studi.nama_program_studi, mahasiswa.nama 
         FROM mahasiswa 
         INNER JOIN program_studi ON mahasiswa.program_studi = program_studi.id 
         INNER JOIN fakultas ON program_studi.id_fakultas = fakultas.id";
-
 $result = $conn->query($sql);
 
+// Fetch fakultas and program studi data
 $sql_fakultas = "SELECT id, nama_fakultas FROM fakultas";
 $result_fakultas = $conn->query($sql_fakultas);
 
@@ -71,21 +62,24 @@ $result_program_studi = $conn->query($sql_program_studi);
             <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
+
     <div class="main-content">
         <header>
-        <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <div class="user-wrapper">
-                <img src="<?php echo $profile_pic ? $profile_pic : 'default-profile.png'; ?>" alt="User" width="30" height="30">
+                <img src="<?php echo $profile_pic ?: 'default-profile.png'; ?>" alt="User" width="30" height="30">
                 <div>
                     <h4><?php echo $nama; ?></h4>
                     <small><?php echo ucfirst($role); ?></small>
                 </div>
             </div>
         </header>
+        
         <main>
             <div class="content-container card">
                 <h2>Daftar Mahasiswa</h2>
                 <button class="add" onclick="openModal()">Tambah Data Mahasiswa</button>
+                
                 <table>
                     <thead>
                         <tr>
@@ -140,6 +134,7 @@ $result_program_studi = $conn->query($sql_program_studi);
             <h2 id="modal-title">Tambah Data Mahasiswa</h2>
             <form id="form-mahasiswa" action="addMahasiswa.php" method="post">
                 <input type="hidden" id="mahasiswa-id" name="mahasiswa_id">
+                
                 <label for="fakultas">Nama Fakultas:</label>
                 <select id="fakultas" name="fakultas" required>
                     <option value="">Pilih Fakultas</option>
@@ -176,28 +171,28 @@ $result_program_studi = $conn->query($sql_program_studi);
     </div>
 
     <script>
-    function openModal(edit = false, id = null, name = '', nim = '') {
-        document.getElementById('modal').style.display = 'block';
-        document.getElementById('form-mahasiswa').action = edit ? 'editMahasiswa.php' : 'addMahasiswa.php';
-        document.getElementById('mahasiswa-id').value = edit ? id : '';
-        document.getElementById('nama_mahasiswa').value = edit ? name : '';
-        document.getElementById('nim').value = edit ? nim : '';
-        document.getElementById('modal-title').innerText = edit ? 'Edit Data Mahasiswa' : 'Tambah Data Mahasiswa';
-        document.getElementById('submit-button').innerText = edit ? 'Update' : 'Tambah';
-    }
+        function openModal(edit = false, id = null, name = '', nim = '') {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('form-mahasiswa').action = edit ? 'editMahasiswa.php' : 'addMahasiswa.php';
+            document.getElementById('mahasiswa-id').value = edit ? id : '';
+            document.getElementById('nama_mahasiswa').value = edit ? name : '';
+            document.getElementById('nim').value = edit ? nim : '';
+            document.getElementById('modal-title').innerText = edit ? 'Edit Data Mahasiswa' : 'Tambah Data Mahasiswa';
+            document.getElementById('submit-button').innerText = edit ? 'Update' : 'Tambah';
+        }
 
-    document.getElementById('sidebar-toggle').addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('hidden');
-        document.querySelector('.main-content').classList.toggle('shifted');
-    });
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('hidden');
+            document.querySelector('.main-content').classList.toggle('shifted');
+        });
 
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-    }
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
 
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
     
     <button class="tombol" onclick="scrollToTop()">

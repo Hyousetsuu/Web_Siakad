@@ -1,52 +1,40 @@
 <?php
 session_start();
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-     header('Location: login.php');
-     exit();
-    }
-
-    include('koneksi.php');
-
-    $user_id = $_SESSION['user_id'];
-    $role = $_SESSION['role'];
-
-    $stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $stmt->bind_result($nama, $profile_pic);
-    $stmt->fetch();
-    $stmt->close();
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Check if user is logged in
-if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit();
 }
 
-// Include database connection file
-include("koneksi.php");
+include('koneksi.php');
 
-// Query to fetch data
+$user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'];
+
+// Fetch user details
+$stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$stmt->bind_result($nama, $profile_pic);
+$stmt->fetch();
+$stmt->close();
+
+// Fetch dosen data
 $sql = "SELECT dosen.id, fakultas.nama_fakultas, program_studi.nama_program_studi, dosen.nama_dosen
         FROM dosen
         INNER JOIN program_studi ON dosen.id_program_studi = program_studi.id
         INNER JOIN fakultas ON program_studi.id_fakultas = fakultas.id";
 $result = $conn->query($sql);
 
-// Query to fetch fakultas data
+// Fetch fakultas data
 $sql_fakultas = "SELECT id, nama_fakultas FROM fakultas";
 $result_fakultas = $conn->query($sql_fakultas);
 
-// Query to fetch program studi data
+// Fetch program studi data
 $sql_program_studi = "SELECT id, nama_program_studi FROM program_studi";
 $result_program_studi = $conn->query($sql_program_studi);
 ?>
@@ -59,7 +47,6 @@ $result_program_studi = $conn->query($sql_program_studi);
     <title>Daftar Dosen - Siakad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="programstudi.css?v=<?php echo time(); ?>">
-   
 </head>
 <body>
     <div class="sidebar">
@@ -68,22 +55,22 @@ $result_program_studi = $conn->query($sql_program_studi);
         </div>
         <ul>
             <li><a href="dashboard.php"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="fakulltas.php"><i class="fas fa-building"></i> Fakultas</a></li>
+            <li><a href="fakultas.php"><i class="fas fa-building"></i> Fakultas</a></li>
             <li><a href="programstudi.php"><i class="fas fa-graduation-cap"></i> Program Studi</a></li>
             <li><a href="matakuliah.php"><i class="fas fa-book"></i> Mata Kuliah</a></li>
             <li><a href="dosen.php" class="active"><i class="fas fa-chalkboard-teacher"></i> Daftar Dosen</a></li>
             <li><a href="mahasiswa.php"><i class="fas fa-user-graduate"></i> Mahasiswa</a></li>
-            <li><a href="login.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
     <div class="main-content">
         <header>
-        <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <div class="user-wrapper">
-                <img src="<?php echo $profile_pic ? $profile_pic : 'default-profile.png'; ?>" alt="User" width="30" height="30">
+                <img src="<?php echo $profile_pic ?: 'default-profile.png'; ?>" alt="User" width="30" height="30">
                 <div>
-                    <h4><?php echo $nama; ?></h4>
-                    <small><?php echo ucfirst($role); ?></small>
+                    <h4><?php echo htmlspecialchars($nama); ?></h4>
+                    <small><?php echo ucfirst(htmlspecialchars($role)); ?></small>
                 </div>
             </div>
         </header>
@@ -104,7 +91,7 @@ $result_program_studi = $conn->query($sql_program_studi);
                                 <?php
                                 if ($result_fakultas->num_rows > 0) {
                                     while ($row_fakultas = $result_fakultas->fetch_assoc()) {
-                                        echo "<option value='{$row_fakultas['id']}'>{$row_fakultas['nama_fakultas']}</option>";
+                                        echo "<option value='{$row_fakultas['id']}'>" . htmlspecialchars($row_fakultas['nama_fakultas']) . "</option>";
                                     }
                                 } else {
                                     echo "<option value='' disabled>Tidak ada fakultas tersedia</option>";
@@ -118,7 +105,7 @@ $result_program_studi = $conn->query($sql_program_studi);
                                 <?php
                                 if ($result_program_studi->num_rows > 0) {
                                     while ($row_program_studi = $result_program_studi->fetch_assoc()) {
-                                        echo "<option value='{$row_program_studi['id']}'>{$row_program_studi['nama_program_studi']}</option>";
+                                        echo "<option value='{$row_program_studi['id']}'>" . htmlspecialchars($row_program_studi['nama_program_studi']) . "</option>";
                                     }
                                 } else {
                                     echo "<option value='' disabled>Tidak ada program studi tersedia</option>";
@@ -153,13 +140,12 @@ $result_program_studi = $conn->query($sql_program_studi);
                     <tbody>
                         <?php
                         if ($result->num_rows > 0) {
-                            // Output data setiap baris
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>";
                                 echo "<td>{$row['id']}</td>";
-                                echo "<td>{$row['nama_fakultas']}</td>";
-                                echo "<td>{$row['nama_program_studi']}</td>";
-                                echo "<td>{$row['nama_dosen']}</td>";
+                                echo "<td>" . htmlspecialchars($row['nama_fakultas']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['nama_program_studi']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['nama_dosen']) . "</td>";
                                 echo "<td class='action-buttons'>";
                                 echo "<button class='add' onclick=\"location.href='editdosen.php?id={$row['id']}'\">Edit</button>";
                                 echo "<form action='deleteDosen.php?id={$row['id']}' method='post' style='display:inline;' onsubmit=\"return confirm('Anda yakin ingin menghapus data dosen ini?')\">";
@@ -195,7 +181,7 @@ $result_program_studi = $conn->query($sql_program_studi);
             document.querySelector('.main-content').classList.toggle('shifted');
         });
     </script>
-    
+
     <button class="tombol" onclick="scrollToTop()">
         <span class="svgIcon"><i class="fas fa-arrow-up"></i></span>
     </button>

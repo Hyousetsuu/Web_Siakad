@@ -1,27 +1,26 @@
 <?php
-    session_start();
+session_start();
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-     header('Location: login.php');
-     exit();
-    }
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: login.php');
+    exit();
+}
 
-    include('koneksi.php');
+include('koneksi.php');
 
-    $user_id = $_SESSION['user_id'];
-    $role = $_SESSION['role'];
+$user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'];
 
-    $stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $stmt->bind_result($nama, $profile_pic);
-    $stmt->fetch();
-    $stmt->close();
-
+$stmt = $conn->prepare("SELECT nama, profile_pic FROM login WHERE id = ?");
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$stmt->bind_result($nama, $profile_pic);
+$stmt->fetch();
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +29,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Program Studi - Siakad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="programstudi.css?v=<?php echo time();?>">
+    <link rel="stylesheet" href="programstudi.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div class="sidebar">
@@ -49,19 +48,19 @@
     </div>
     <div class="main-content">
         <header>
-        <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <div class="user-wrapper">
-                <img src="<?php echo $profile_pic ? $profile_pic : 'default-profile.png'; ?>" alt="User" width="30" height="30">
+                <img src="<?php echo $profile_pic ? htmlspecialchars($profile_pic) : 'default-profile.png'; ?>" alt="User" width="30" height="30">
                 <div>
-                    <h4><?php echo $nama; ?></h4>
-                    <small><?php echo ucfirst($role); ?></small>
+                    <h4><?php echo htmlspecialchars($nama); ?></h4>
+                    <small><?php echo ucfirst(htmlspecialchars($role)); ?></small>
                 </div>
             </div>
         </header>
         <main>
             <div class="content-container card">
                 <h2>Program Studi</h2>
-                <button class="add" onclick="openModal()" class="submit-button">Tambah Data Program Studi</button>
+                <button class="add" onclick="openModal()">Tambah Data Program Studi</button>
                 <table>
                     <thead>
                         <tr>
@@ -73,21 +72,11 @@
                     </thead>
                     <tbody>
                         <?php
-
-                        // Enable error reporting
-                        ini_set('display_errors', 1);
-                        ini_set('display_startup_errors', 1);
-                        error_reporting(E_ALL);
-
-                        // Check if user is logged in
-                        if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
-                            header('Location: login.php');
-                            exit();
-                        }
                         // Koneksi ke database
                         include("koneksi.php");
+                        
                         // Ambil data program studi beserta nama fakultas
-                        $sql = "SELECT program_studi.id, program_studi.nama_program_studi, fakultas.nama_fakultas 
+                        $sql = "SELECT program_studi.id, program_studi.nama_program_studi, fakultas.nama_fakultas, program_studi.id_fakultas 
                                 FROM program_studi 
                                 INNER JOIN fakultas ON program_studi.id_fakultas = fakultas.id";
                         $result = $conn->query($sql);
@@ -99,11 +88,11 @@
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
                                         <td>{$no}</td>
-                                        <td>{$row['nama_fakultas']}</td>
-                                        <td>{$row['nama_program_studi']}</td>
+                                        <td>" . htmlspecialchars($row['nama_fakultas']) . "</td>
+                                        <td>" . htmlspecialchars($row['nama_program_studi']) . "</td>
                                         <td>
                                             <div class='action-buttons'>
-                                                <button class='add' type='button' onclick=\"openModal(true, {$row['id']}, '{$row['nama_program_studi']}')\">Edit</button>
+                                                <button class='add' type='button' onclick=\"openModal(true, {$row['id']}, '" . htmlspecialchars($row['nama_program_studi']) . "', '{$row['id_fakultas']}')\">Edit</button>
                                                 <form action='deleteProgramStudi.php' method='post' onsubmit=\"return confirm('Apakah Anda yakin ingin menghapus data ini?')\">
                                                     <input type='hidden' name='program_studi_id' value='{$row['id']}'>
                                                     <button class='add' type='submit' name='delete'>Delete</button>
@@ -147,7 +136,7 @@
 
                     if ($result_fakultas->num_rows > 0) {
                         while($row_fakultas = $result_fakultas->fetch_assoc()) {
-                            echo "<option value='{$row_fakultas['id']}'>{$row_fakultas['nama_fakultas']}</option>";
+                            echo "<option value='" . htmlspecialchars($row_fakultas['id']) . "'>" . htmlspecialchars($row_fakultas['nama_fakultas']) . "</option>";
                         }
                     } else {
                         echo "<option value='' disabled>Tidak ada fakultas tersedia</option>";
@@ -175,23 +164,23 @@
             document.getElementById('fakultas').value = id_fakultas;
         }
     }
-    document.getElementById('sidebar-toggle').addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('hidden');
-                document.querySelector('.main-content').classList.toggle('shifted');
-            });
 
     function closeModal() {
         document.getElementById('modal').style.display = 'none';
     }
+
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('hidden');
+        document.querySelector('.main-content').classList.toggle('shifted');
+    });
+
     function scrollToTop() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     </script>
-<button class="tombol" onclick="scrollToTop()">
+    <button class="tombol" onclick="scrollToTop()">
         <span class="svgIcon"><i class="fas fa-arrow-up"></i></span>
     </button>
-
 </body>
 <footer class="footer">
     <div class="footer-content">
@@ -203,4 +192,4 @@
         </p>
     </div>
 </footer>
-</html>
+</
